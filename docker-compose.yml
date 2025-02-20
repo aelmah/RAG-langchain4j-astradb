@@ -1,0 +1,33 @@
+services:
+  pdf-assistant-langchain4j-astradb:
+    image: pdf-assistant-langchain4j-astradb:latest  # Use the image built from the Dockerfile
+    build: .
+    container_name: pdf-assistant-langchain4j-astradb-container
+    ports:
+      - "8080:8080"
+    environment:
+      ASTRA_DB_TOKEN: ${ASTRA_DB_TOKEN}
+      ASTRA_DB_ID: ${ASTRA_DB_ID}
+      ASTRA_DB_REGION: us-east-2
+      ASTRA_DB_KEYSPACE: ${ASTRA_DB_KEYSPACE}
+      ASTRA_DB_TABLE: vectors
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on:
+      - cassandra-db
+    restart: always
+
+  cassandra-db:
+    image: cassandra:latest
+    container_name: cassandra-db
+    ports:
+      - "9042:9042"
+    environment:
+      CASSANDRA_CLUSTER_NAME: "AstraCluster"
+      CASSANDRA_NUM_TOKENS: 256
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+    restart: always
+
+volumes:
+  cassandra_data:
+    driver: local

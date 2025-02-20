@@ -1,6 +1,5 @@
 package config.pdfassistantlangchain4jastradb;
 
-
 import dev.langchain4j.chain.ConversationalRetrievalChain;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.model.embedding.AllMiniLmL6V2EmbeddingModel;
@@ -10,11 +9,30 @@ import dev.langchain4j.retriever.EmbeddingStoreRetriever;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.cassandra.AstraDbEmbeddingConfiguration;
 import dev.langchain4j.store.embedding.cassandra.AstraDbEmbeddingStore;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class PdfAssistantConfig {
+
+    @Value("${astradb.token}")
+    private String astraToken;
+
+    @Value("${astradb.id}")
+    private String databaseId;
+
+    @Value("${astradb.region}")
+    private String databaseRegion;
+
+    @Value("${astradb.keyspace}")
+    private String keyspace;
+
+    @Value("${astradb.table}")
+    private String table;
+
+    @Value("${openai.api_key}")
+    private String openAiApiKey;
 
     @Bean
     public EmbeddingModel embeddingModel() {
@@ -23,16 +41,13 @@ public class PdfAssistantConfig {
 
     @Bean
     public AstraDbEmbeddingStore astraDbEmbeddingStore() {
-        String astraToken = "astradb_token";
-        String databaseId = "astradb_id";
-
         return new AstraDbEmbeddingStore(AstraDbEmbeddingConfiguration
                 .builder()
                 .token(astraToken)
                 .databaseId(databaseId)
-                .databaseRegion("astradb_region")
-                .keyspace("astradb_keyspace")
-                .table("table_name")
+                .databaseRegion(databaseRegion)
+                .keyspace(keyspace)
+                .table(table)
                 .dimension(384)
                 .build());
     }
@@ -49,9 +64,8 @@ public class PdfAssistantConfig {
     @Bean
     public ConversationalRetrievalChain conversationalRetrievalChain() {
         return ConversationalRetrievalChain.builder()
-                .chatLanguageModel(OpenAiChatModel.withApiKey("openai_api_key"))
+                .chatLanguageModel(OpenAiChatModel.withApiKey(openAiApiKey))
                 .retriever(EmbeddingStoreRetriever.from(astraDbEmbeddingStore(), embeddingModel()))
                 .build();
     }
-
 }
