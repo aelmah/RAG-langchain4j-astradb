@@ -1,6 +1,6 @@
 services:
   pdf-assistant-langchain4j-astradb:
-    image: pdf-assistant-langchain4j-astradb:latest  # Use the image built from the Dockerfile
+    image: pdf-assistant-langchain4j-astradb:latest 
     build: .
     container_name: pdf-assistant-langchain4j-astradb-container
     ports:
